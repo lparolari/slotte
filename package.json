@@ -62,5 +62,9 @@
   "files": [
     "dist/**/*"
   ],
-  "dependencies": {}
+  "dependencies": {
+    "@types/ramda": "^0.27.25",
+    "moment": "^2.29.1",
+    "ramda": "^0.27.1"
+  }
 }
