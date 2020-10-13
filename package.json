@@ -1,7 +1,7 @@
 {
-  "name": "template-typescript-package",
+  "name": "slotte",
   "version": "0.0.0-development",
-  "description": "A boilerplate repo for publishing typescript packages to npm",
+  "description": "Constrained time slot generator.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -15,22 +15,25 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/beeman/template-typescript-package.git"
+    "url": "https://github.com/lparolari/slotte.git"
   },
   "keywords": [
-    "TypeScript",
-    "Package",
-    "Starter"
+    "Slotte",
+    "Constrained Time Slot Generator",
+    "Generator",
+    "Constraints",
+    "Time Slot"
   ],
   "author": {
-    "name": "Bram Borggreve",
-    "email": "borggreve@gmail.com"
+    "name": "Luca Parolari",
+    "email": "luca.parolari23@gmail.com",
+    "url": "https://github.com/lparolari"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/beeman/template-typescript-package/issues"
+    "url": "https://github.com/lparolari/slotte/issues"
   },
-  "homepage": "https://github.com/beeman/template-typescript-package#readme",
+  "homepage": "https://github.com/lparolari/slotte#readme",
   "husky": {
     "hooks": {
       "pre-commit": "yarn lint && npm test",
