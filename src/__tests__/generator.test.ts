@@ -1,8 +1,11 @@
 import moment, { Moment } from "moment";
+import { forEach, KeyValuePair, map, zip } from "ramda";
 
-import { ge } from "../constraint";
+import { ge, lt } from "../constraint";
 import { generator } from "../generator";
 import { addInterval, Interval } from "../interval";
+import { flatten, takeUntil } from "../util";
+import { mock, revive } from "./mock";
 
 const interval: Interval = { amount: 30, unit: "minutes" };
 const d1 = moment();
@@ -73,5 +76,46 @@ describe("generator with constraints", () => {
     expect(gen.next().value).toEqual([]); // 23:00 sathurday
     expect(gen.next().value).toEqual([]); // 23:30 sathurday
     expect(gen.next().value).not.toEqual([]); // 00:00 sunday, now we can generate
+  });
+});
+
+describe("generator with complex constraints", () => {
+  const dateFormat = "YYYY-MM-DD";
+  const datetimeFormat = "YYYY-MM-DD HH:mm";
+
+  it("generate a work week calendar with 1h slots", () => {
+    const interval: Interval = { amount: 1, unit: "hour" };
+    const start = moment("2020-10-11 00:00");
+    const stop = moment("2020-10-18 00:00");
+
+    const notOnSathurday = (c: Moment) => c.isoWeekday() !== 6;
+    const notOnSunday = (c: Moment) => c.isoWeekday() !== 7;
+    const notBefore8am = (c: Moment) =>
+      ge(moment(`${c.format(dateFormat)} 8:00`, datetimeFormat))(c);
+    const notAtLaunch = (c: Moment) =>
+      !c.isBetween(
+        moment(`${c.format(dateFormat)} 12:00`, datetimeFormat),
+        moment(`${c.format(dateFormat)} 14:00`, datetimeFormat),
+        undefined,
+        "[)",
+      );
+    const notAfter18pm = (c: Moment) =>
+      lt(moment(`${c.format(dateFormat)} 18:00`, datetimeFormat))(c);
+
+    const gen = generator(interval)([
+      notOnSathurday,
+      notOnSunday,
+      notBefore8am,
+      notAfter18pm,
+      notAtLaunch,
+    ])(start);
+
+    const actualWeek = flatten(takeUntil(stop)(gen));
+    const expectedWeek = map(revive, mock.workingWeek);
+
+    forEach((x: KeyValuePair<Moment, Moment>) => {
+      expect(x[0].isSame(x[1])).toBe(true);
+    }, zip(actualWeek, expectedWeek));
+    expect.assertions(actualWeek.length);
   });
 });

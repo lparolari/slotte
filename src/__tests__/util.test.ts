@@ -1,9 +1,9 @@
 import moment from "moment";
 
 import { generator } from "../generator";
-import { Interval } from "../interval";
+import { addInterval, Interval } from "../interval";
 import { Slot } from "../slot";
-import { flatten, take } from "../util";
+import { flatten, take, takeUntil } from "../util";
 
 describe("generator", () => {
   const interval: Interval = { amount: 30, unit: "minutes" };
@@ -27,6 +27,22 @@ describe("generator", () => {
     it("flatten elements from generator", () => {
       expect(flatten(take(0)(gen))).toHaveLength(0);
       expect(flatten(take(5)(gen))).toHaveLength(5);
+    });
+  });
+
+  describe("takeUntil", () => {
+    const stop = addInterval({ amount: 1, unit: "hour" })(start);
+
+    it("take elements until date", () => {
+      expect(flatten(takeUntil(stop)(gen))).toHaveLength(2);
+    });
+
+    it("take nothing if iterable is at the end", () => {
+      const gen: Generator<Slot, Slot, unknown> = (function* () {
+        yield [];
+        return [];
+      })();
+      expect(takeUntil(stop)(gen)).toHaveLength(0);
     });
   });
 });
