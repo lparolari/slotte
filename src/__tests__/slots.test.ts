@@ -1,6 +1,7 @@
 import moment, { Moment } from "moment";
 
-import { addInterval, Interval, slots } from "../slots";
+import { Interval, slots } from "../slots";
+import { addInterval } from "../util";
 
 describe("slots", () => {
   const interval: Interval = { amount: 30, unit: "minutes" };

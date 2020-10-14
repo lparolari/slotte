@@ -1,5 +1,7 @@
 import moment, { Moment } from "moment";
+
 import { Constraint, validate } from "./constraint";
+import { addInterval } from "./util";
 
 export type Interval = {
   amount: moment.DurationInputArg1;
@@ -7,8 +9,6 @@ export type Interval = {
 };
 
 export type Slot = string;
-
-export const addInterval = (interval: Interval) => (m: Moment): Moment => m.clone().add(interval.amount, interval.unit);
 
 export const slots = (interval: Interval) => (constraints: Constraint[]) => (start: Moment) => {
   return (function* () {
