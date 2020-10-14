@@ -1,7 +1,7 @@
 import moment, { Moment } from "moment";
 import { ge } from "../constraint";
 
-import { Interval, slots } from "../slots";
+import { Interval, one, slots } from "../slots";
 import { addInterval } from "../util";
 
 const interval: Interval = { amount: 30, unit: "minutes" };
@@ -10,39 +10,60 @@ const d2 = addInterval(interval)(d1); // d1 + 30m
 const d3 = addInterval(interval)(d2); // d2 + 30m = d1 + 60m
 const start = d1;
 
-describe("slots", () => {
-  const geq = (d: Moment) => (c: Moment): boolean => c >= d;
+describe("single time slot", () => {
+  it("create a time slot", () => {
+    expect(one([])(start)).not.toEqual([]);
+  });
 
-  it("generate a single time slot", () => {
-    const gen = slots(interval)([])(start);
+  it("create first value equal to start", () => {
+    expect(one([])(start)).toEqual([start]);
+  });
 
-    expect(gen.next().value).toEqual([start]);
+  it("create value when all constraints are true", () => {
+    const t = () => true;
+    const f = () => false;
+
+    expect(one([])(start)).not.toEqual([]);
+    expect(one([t])(start)).not.toEqual([]);
+    expect(one([t, t, t])(start)).not.toEqual([]);
+    expect(one([t, f])(start)).toEqual([]);
+    expect(one([f, t])(start)).toEqual([]);
+    expect(one([f, f, f])(start)).toEqual([]);
+    expect(one([f])(start)).toEqual([]);
+  });
+});
+
+describe("time slots generator", () => {
+  const alwaysGen = () => slots(interval)([])(start);
+  const neverGen = () => slots(interval)([() => false])(start);
+  const startFromD2Gen = () => slots(interval)([ge(d2)])(start);
+  const startFromD3Gen = () => slots(interval)([ge(d2), ge(d3)])(start);
+
+  it("generate a time slot", () => {
+    expect(alwaysGen().next().value).not.toBe([]);
   });
 
   it("generate subsequent time slots", () => {
-    const gen = slots(interval)([])(start);
-
+    const gen = alwaysGen();
     expect(gen.next().value).toEqual([start]);
     expect(gen.next().value).toEqual([addInterval(interval)(start)]);
   });
 
-  it("do not generate time slots if constraints always fail", () => {
-    const gen = slots(interval)([() => false])(start);
-
+  it("generate time slots wrt constraints (never)", () => {
+    const gen = neverGen();
+    expect(gen.next().value).toEqual([]);
     expect(gen.next().value).toEqual([]);
   });
 
-  it("do not generate time slots if a constraint is failing", () => {
-    const gen = slots(interval)([geq(d2)])(start);
-
+  it("generate time slots wrt constraints (>= d2)", () => {
+    const gen = startFromD2Gen();
     expect(gen.next().value).toEqual([]);
     expect(gen.next().value).toEqual([d2]);
     expect(gen.next().value).not.toEqual([]);
   });
 
-  it("do not generate time slots if costraints are failing", () => {
-    const gen = slots(interval)([geq(d2), geq(d3)])(start);
-
+  it("generate time slots wrt constraints (>= d2 && => d3)", () => {
+    const gen = startFromD3Gen();
     expect(gen.next().value).toEqual([]);
     expect(gen.next().value).toEqual([]);
     expect(gen.next().value).toEqual([d3]);
