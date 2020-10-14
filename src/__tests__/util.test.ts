@@ -1,18 +1,32 @@
 import moment from "moment";
-import { Interval } from "../slot";
-import { addInterval } from "../util";
 
-describe("addInterval", () => {
+import { generator } from "../generator";
+import { Interval } from "../interval";
+import { Slot } from "../slot";
+import { flatten, take } from "../util";
+
+describe("generator", () => {
   const interval: Interval = { amount: 30, unit: "minutes" };
   const d1 = moment();
-  const d2 = addInterval(interval)(d1);
-  const d3 = d1.clone().add(interval.amount, interval.unit);
+  const start = d1;
 
-  it("add interval like moment", () => {
-    expect(d2).toEqual(d3);
+  let gen: Generator<Slot, never, unknown>;
+
+  beforeEach(() => {
+    gen = generator(interval)([])(start);
   });
 
-  it("do not perform side effect on invocation object", () => {
-    expect(d2).not.toEqual(d1);
+  describe("take", () => {
+    it("get n element from generator", () => {
+      expect(take(0)(gen)).toHaveLength(0);
+      expect(take(5)(gen)).toHaveLength(5);
+    });
+  });
+
+  describe("flatten", () => {
+    it("flatten elements from generator", () => {
+      expect(flatten(take(0)(gen))).toHaveLength(0);
+      expect(flatten(take(5)(gen))).toHaveLength(5);
+    });
   });
 });

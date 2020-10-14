@@ -3,7 +3,7 @@ import * as R from "ramda";
 
 export type Constraint = (current: Moment) => boolean;
 
-export const validate = (constraints: Constraint[]) => (current: Moment) =>
+export const validate = (constraints: Constraint[]) => (current: Moment): boolean =>
   R.all(R.identity, R.map(R.applyTo(current), constraints));
 
 export const gt = (threshold: Moment) => (current: Moment): boolean => current.isAfter(threshold); // c > t

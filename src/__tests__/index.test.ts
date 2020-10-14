@@ -1,7 +1,8 @@
-import { slots } from "../index";
+import { slot, generator } from "../index";
 
 describe("index", () => {
   it("expose functions as interface to package", () => {
-    expect(slots).toBeDefined();
+    expect(slot).toBeDefined();
+    expect(generator).toBeDefined();
   });
 });

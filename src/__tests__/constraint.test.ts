@@ -1,7 +1,7 @@
 import moment, { Moment } from "moment";
 
 import { eq, ge, gt, le, lt, ne } from "../constraint";
-import { addInterval } from "../util";
+import { addInterval } from "../interval";
 
 describe("comparison constraints", () => {
   const c = moment();

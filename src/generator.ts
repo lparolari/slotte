@@ -1,10 +1,17 @@
-import { Slot } from "./slot";
+import { Moment } from "moment";
+import { Constraint } from "./constraint";
+import { addInterval, Interval } from "./interval";
+import { slot, Slot } from "./slot";
 
-import * as R from "ramda";
+export const generator = (interval: Interval) => (constraints: Constraint[]) => (
+  start: Moment,
+): Generator<Slot, never, unknown> => {
+  return (function* () {
+    let newStart = start;
 
-const repeat = (n: number) => R.repeat(0, n);
-
-export const take = (n: number) => (iterable: IterableIterator<Slot>): Slot[] =>
-  R.map(() => iterable.next().value, repeat(n));
-
-export const flatten = R.flatten;
+    while (true) {
+      yield slot(constraints)(newStart);
+      newStart = addInterval(interval)(newStart);
+    }
+  })();
+};
