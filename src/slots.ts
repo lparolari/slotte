@@ -8,9 +8,11 @@ export type Interval = {
   unit: moment.DurationInputArg2;
 };
 
-export type Slot = string;
+export type Slot = string[];
 
-export const slots = (interval: Interval) => (constraints: Constraint[]) => (start: Moment) => {
+export const generator = (interval: Interval) => (constraints: Constraint[]) => (
+  start: Moment,
+): Generator<Slot, never, unknown> => {
   return (function* () {
     let newStart = start;
 
@@ -21,12 +23,14 @@ export const slots = (interval: Interval) => (constraints: Constraint[]) => (sta
   })();
 };
 
-export const one = (constraints: Constraint[]) => (start: Moment): string[] => {
+export const slots = generator;
+
+export const one = (constraints: Constraint[]) => (start: Moment): Slot => {
   const current = moment(start, "HH:mm");
 
-  if (validate(constraints)(current)) {
-    return [current.format("HH:mm")];
+  if (!validate(constraints)(current)) {
+    return [];
   }
 
-  return [];
+  return [current.format("HH:mm")];
 };

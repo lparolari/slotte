@@ -1,6 +1,6 @@
 import moment from "moment";
 
-import { Interval, slots } from "../slots";
+import { Interval, Slot, slots } from "../slots";
 import { take, flatten } from "../generator";
 
 describe("generator", () => {
@@ -8,7 +8,7 @@ describe("generator", () => {
   const d1 = moment();
   const start = d1;
 
-  let gen: Generator<string[], never, unknown>;
+  let gen: Generator<Slot, never, unknown>;
 
   beforeEach(() => {
     gen = slots(interval)([])(start);
