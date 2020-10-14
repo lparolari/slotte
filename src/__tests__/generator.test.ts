@@ -53,7 +53,8 @@ describe("generator with constraints", () => {
     const dateFormat = "YYYY-MM-DD";
     const datetimeFormat = "YYYY-MM-DD HH:mm";
 
-    const notBefore8am = (c: Moment) => ge(moment(`${c.format(dateFormat)} 8:00`, datetimeFormat))(c);
+    const notBefore8am = (c: Moment) =>
+      ge(moment(`${c.format(dateFormat)} 8:00`, datetimeFormat))(c);
 
     const start = moment("2020-10-17 07:00");
     const gen = generator(interval)([notBefore8am])(start);

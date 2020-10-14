@@ -3,9 +3,9 @@ import { Constraint } from "./constraint";
 import { addInterval, Interval } from "./interval";
 import { slot, Slot } from "./slot";
 
-export const generator = (interval: Interval) => (constraints: Constraint[]) => (
-  start: Moment,
-): Generator<Slot, never, unknown> => {
+export const generator = (interval: Interval) => (
+  constraints: Constraint[],
+) => (start: Moment): Generator<Slot, never, unknown> => {
   return (function* () {
     let newStart = start;
 

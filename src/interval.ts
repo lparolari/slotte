@@ -5,4 +5,5 @@ export type Interval = {
   unit: moment.DurationInputArg2;
 };
 
-export const addInterval = (interval: Interval) => (m: Moment): Moment => m.clone().add(interval.amount, interval.unit);
+export const addInterval = (interval: Interval) => (m: Moment): Moment =>
+  m.clone().add(interval.amount, interval.unit);
