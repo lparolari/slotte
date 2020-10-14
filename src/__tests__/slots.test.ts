@@ -15,14 +15,14 @@ describe("slots", () => {
   it("generate a single time slot", () => {
     const gen = slots(interval)([])(start);
 
-    expect(gen.next().value).toEqual([start.format("HH:mm")]);
+    expect(gen.next().value).toEqual([start]);
   });
 
   it("generate subsequent time slots", () => {
     const gen = slots(interval)([])(start);
 
-    expect(gen.next().value).toEqual([start.format("HH:mm")]);
-    expect(gen.next().value).toEqual([addInterval(interval)(start).format("HH:mm")]);
+    expect(gen.next().value).toEqual([start]);
+    expect(gen.next().value).toEqual([addInterval(interval)(start)]);
   });
 
   it("do not generate time slots if constraints always fail", () => {
@@ -35,7 +35,7 @@ describe("slots", () => {
     const gen = slots(interval)([geq(d2)])(start);
 
     expect(gen.next().value).toEqual([]);
-    expect(gen.next().value).toEqual([d2.format("HH:mm")]);
+    expect(gen.next().value).toEqual([d2]);
     expect(gen.next().value).not.toEqual([]);
   });
 
@@ -44,7 +44,7 @@ describe("slots", () => {
 
     expect(gen.next().value).toEqual([]);
     expect(gen.next().value).toEqual([]);
-    expect(gen.next().value).toEqual([d3.format("HH:mm")]);
+    expect(gen.next().value).toEqual([d3]);
     expect(gen.next().value).not.toEqual([]);
   });
 });
