@@ -1,7 +1,24 @@
 import moment, { Moment } from "moment";
 
-import { eq, ge, gt, le, lt, ne } from "../constraint";
+import { eq, ge, gt, le, lt, ne, validate } from "../constraint";
 import { addInterval } from "../interval";
+
+describe("validate", () => {
+  const c = moment();
+
+  const t = () => true;
+  const f = () => false;
+
+  it("return true whether all constraints are true", () => {
+    expect(validate([])(c)).toBe(true);
+    expect(validate([t])(c)).toBe(true);
+    expect(validate([t, t, t])(c)).toBe(true);
+    expect(validate([t, f])(c)).toBe(false);
+    expect(validate([f, t])(c)).toBe(false);
+    expect(validate([f, f, f])(c)).toBe(false);
+    expect(validate([f])(c)).toBe(false);
+  });
+});
 
 describe("comparison constraints", () => {
   const c = moment();
@@ -9,7 +26,7 @@ describe("comparison constraints", () => {
   const greater = addInterval({ amount: 1, unit: "hour" })(c);
   const less = addInterval({ amount: -1, unit: "hour" })(c);
 
-  const injectCurrent = (f: (c: Moment) => boolean): boolean => f(c);
+  const injectCurrent = (f: (current: Moment) => boolean): boolean => f(c);
 
   test("lt", () => {
     expect(injectCurrent(lt(equal))).toBe(false);

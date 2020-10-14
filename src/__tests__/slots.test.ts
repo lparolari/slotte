@@ -14,16 +14,8 @@ describe("single time slot", () => {
     expect(slot([])(start)).toEqual([start]);
   });
 
-  it("create value when all constraints are true", () => {
-    const t = () => true;
-    const f = () => false;
-
-    expect(slot([])(start)).not.toEqual([]);
-    expect(slot([t])(start)).not.toEqual([]);
-    expect(slot([t, t, t])(start)).not.toEqual([]);
-    expect(slot([t, f])(start)).toEqual([]);
-    expect(slot([f, t])(start)).toEqual([]);
-    expect(slot([f, f, f])(start)).toEqual([]);
-    expect(slot([f])(start)).toEqual([]);
+  it("work also with constraints", () => {
+    expect(slot([() => true])(start)).toEqual([start]);
+    expect(slot([() => false])(start)).toEqual([]);
   });
 });
