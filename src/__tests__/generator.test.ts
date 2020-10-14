@@ -1,6 +1,6 @@
 import moment from "moment";
 
-import { Interval, Slot, slots } from "../slots";
+import { Interval, Slot, slots } from "../slot";
 import { take, flatten } from "../generator";
 
 describe("generator", () => {

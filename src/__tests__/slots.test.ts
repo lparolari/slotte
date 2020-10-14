@@ -1,7 +1,7 @@
 import moment, { Moment } from "moment";
 import { ge } from "../constraint";
 
-import { Interval, one, slots } from "../slots";
+import { Interval, one, slots } from "../slot";
 import { addInterval } from "../util";
 
 const interval: Interval = { amount: 30, unit: "minutes" };

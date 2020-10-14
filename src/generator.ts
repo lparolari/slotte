@@ -1,4 +1,4 @@
-import { Slot } from "./slots";
+import { Slot } from "./slot";
 
 import * as R from "ramda";
 

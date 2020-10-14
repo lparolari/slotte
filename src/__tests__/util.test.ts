@@ -1,5 +1,5 @@
 import moment from "moment";
-import { Interval } from "../slots";
+import { Interval } from "../slot";
 import { addInterval } from "../util";
 
 describe("addInterval", () => {
