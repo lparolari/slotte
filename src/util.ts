@@ -1,5 +1,5 @@
+import moment, { Moment } from "moment";
 import * as R from "ramda";
-import { Moment } from "moment";
 
 import { Slot } from "./slot";
 
@@ -24,3 +24,28 @@ export const takeUntil = (m: Moment) => (iterable: Iterable<Slot>): Slot[] => {
 
   return times;
 };
+
+type Format = { date: string; datetime: string };
+
+/**
+ * Change the time of `current` to `time`. Date and datetime parsing is done via formats in `format`.
+ * @param format Date and datetime format to use for parsing.
+ * @param time The time to change to.
+ * @param current The datetime to modify.
+ * @returns A new moment where date is `current` and time is `time`.
+ */
+const changeTimeWithFormat = (format: Format) => (time: string) => (
+  current: Moment,
+): Moment => moment(`${current.format(format.date)} ${time}`, format.datetime);
+
+/**
+ * Change `current` time to `time`.
+ * Uses simple format
+ * * date: `YYYY-MM-DD`,
+ * * datetime: `YYYY-MM-DD HH:mm:ss`,
+ * @returns A new moment where date is `current` and time is `time`.
+ */
+export const changeTime = changeTimeWithFormat({
+  date: "YYYY-MM-DD",
+  datetime: "YYYY-MM-DD HH:mm:ss",
+});

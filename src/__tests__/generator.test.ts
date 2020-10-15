@@ -4,7 +4,7 @@ import { forEach, KeyValuePair, map, zip } from "ramda";
 import { ge, lt } from "../constraint";
 import { generator } from "../generator";
 import { addInterval, Interval } from "../interval";
-import { flatten, takeUntil } from "../util";
+import { flatten, takeUntil, changeTime } from "../util";
 import { mock, revive } from "./mock";
 
 const interval: Interval = { amount: 30, unit: "minutes" };
@@ -80,27 +80,22 @@ describe("generator with constraints", () => {
 });
 
 describe("generator with complex constraints", () => {
-  const dateFormat = "YYYY-MM-DD";
-  const datetimeFormat = "YYYY-MM-DD HH:mm";
-
   it("generate a work week calendar with 1h slots", () => {
     const interval: Interval = { amount: 1, unit: "hour" };
     const start = moment("2020-10-11 00:00");
     const stop = moment("2020-10-18 00:00");
 
+    const changeTimeTo08 = changeTime("8:00");
+    const changeTimeTo12 = changeTime("12:00");
+    const changeTimeTo14 = changeTime("14:00");
+    const changeTimeTo18 = changeTime("18:00");
+
     const notOnSathurday = (c: Moment) => c.isoWeekday() !== 6;
     const notOnSunday = (c: Moment) => c.isoWeekday() !== 7;
-    const notBefore8am = (c: Moment) =>
-      ge(moment(`${c.format(dateFormat)} 8:00`, datetimeFormat))(c);
+    const notBefore8am = (c: Moment) => ge(changeTimeTo08(c))(c);
     const notAtLaunch = (c: Moment) =>
-      !c.isBetween(
-        moment(`${c.format(dateFormat)} 12:00`, datetimeFormat),
-        moment(`${c.format(dateFormat)} 14:00`, datetimeFormat),
-        undefined,
-        "[)",
-      );
-    const notAfter18pm = (c: Moment) =>
-      lt(moment(`${c.format(dateFormat)} 18:00`, datetimeFormat))(c);
+      !c.isBetween(changeTimeTo12(c), changeTimeTo14(c), undefined, "[)");
+    const notAfter18pm = (c: Moment) => lt(changeTimeTo18(c))(c);
 
     const gen = generator(interval)([
       notOnSathurday,
