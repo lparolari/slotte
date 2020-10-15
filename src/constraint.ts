@@ -40,10 +40,10 @@ export const betweenWithInclusivity = betweenWithInclusivityAndGranularity(
 export const between = betweenWithInclusivity("[)");
 
 // weekday constraints
-export const onMonday = (m: Moment) => m.isoWeekday() === 1;
-export const onTuesday = (m: Moment) => m.isoWeekday() === 2;
-export const onWednesday = (m: Moment) => m.isoWeekday() === 3;
-export const onThursday = (m: Moment) => m.isoWeekday() === 4;
-export const onFriday = (m: Moment) => m.isoWeekday() === 5;
-export const onSathurday = (m: Moment) => m.isoWeekday() === 6;
-export const onSunday = (m: Moment) => m.isoWeekday() === 7;
+export const onMonday = (m: Moment): boolean => m.isoWeekday() === 1;
+export const onTuesday = (m: Moment): boolean => m.isoWeekday() === 2;
+export const onWednesday = (m: Moment): boolean => m.isoWeekday() === 3;
+export const onThursday = (m: Moment): boolean => m.isoWeekday() === 4;
+export const onFriday = (m: Moment): boolean => m.isoWeekday() === 5;
+export const onSathurday = (m: Moment): boolean => m.isoWeekday() === 6;
+export const onSunday = (m: Moment): boolean => m.isoWeekday() === 7;
