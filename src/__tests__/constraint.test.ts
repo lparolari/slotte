@@ -15,6 +15,7 @@ import {
   onThursday,
   onTuesday,
   onWednesday,
+  between,
   validate,
 } from "../constraint";
 import { addInterval } from "../interval";
@@ -78,6 +79,14 @@ describe("comparison constraints", () => {
     expect(injectCurrent(gt(equal))).toBe(false);
     expect(injectCurrent(gt(greater))).toBe(false);
     expect(injectCurrent(gt(less))).toBe(true);
+  });
+});
+
+describe("set costraints", () => {
+  test("between", () => {
+    const d = moment();
+    // we may check call to other functions with right parameters.
+    expect(between(d, d)(d)).toBe(false);
   });
 });
 

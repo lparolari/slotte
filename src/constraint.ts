@@ -1,4 +1,4 @@
-import { Moment } from "moment";
+import { Moment, unitOfTime } from "moment";
 import * as R from "ramda";
 
 export type Constraint = (current: Moment) => boolean;
@@ -7,6 +7,7 @@ export const validate = (constraints: Constraint[]) => (
   current: Moment,
 ): boolean => R.all(R.identity, R.map(R.applyTo(current), constraints));
 
+// comparison constraints
 export const gt = (threshold: Moment) => (current: Moment): boolean =>
   current.isAfter(threshold); // c > t
 
@@ -25,6 +26,20 @@ export const le = (threshold: Moment) => (current: Moment): boolean =>
 export const lt = (threshold: Moment) => (current: Moment): boolean =>
   current.isBefore(threshold); // c < t
 
+// set constraints
+export const betweenWithInclusivityAndGranularity = (
+  granularity: unitOfTime.StartOf,
+) => (inclusivity: "()" | "[)" | "(]" | "[]") => (d1: Moment, d2: Moment) => (
+  current: Moment,
+): boolean => current.isBetween(d1, d2, granularity, inclusivity);
+
+export const betweenWithInclusivity = betweenWithInclusivityAndGranularity(
+  "minute",
+);
+
+export const between = betweenWithInclusivity("[)");
+
+// weekday constraints
 export const onMonday = (m: Moment) => m.isoWeekday() === 1;
 export const onTuesday = (m: Moment) => m.isoWeekday() === 2;
 export const onWednesday = (m: Moment) => m.isoWeekday() === 3;
