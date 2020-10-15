@@ -5,7 +5,7 @@ import { slot, Slot } from "./slot";
 
 export const generator = (interval: Interval) => (
   constraints: Constraint[],
-) => (start: Moment): Generator<Slot, never, unknown> => {
+) => (start: Moment): Generator<Slot, Slot, Slot> => {
   return (function* () {
     let newStart = start;
 

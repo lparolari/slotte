@@ -1,29 +1,80 @@
+import * as A from "fp-ts/lib/Array";
+import { flow } from "fp-ts/lib/function";
+import * as O from "fp-ts/lib/Option";
+import { Ord } from "fp-ts/lib/Ord";
 import moment, { Moment } from "moment";
 import * as R from "ramda";
 
-import { Slot } from "./slot";
+import { Info, Slot } from "./slot";
 
 const repeat = (n: number) => R.repeat(0, n);
 
-export const take = (n: number) => (iterable: IterableIterator<Slot>): Slot[] =>
-  R.map(() => iterable.next().value, repeat(n));
+export const take = (n: number) => (
+  iterable: Generator<Slot, Slot, Slot>,
+): Slot[] => R.map(() => iterable.next().value, repeat(n));
 
-export const flatten = R.flatten;
+export const flatten: (ss: Slot[]) => Info[] = flow(
+  A.map(
+    O.fold(
+      () => [],
+      (x: Info) => [x],
+    ),
+  ),
+  A.flatten,
+);
 
-// takeUntil `m`, with `m` excluded (stops before)
-export const takeUntil = (m: Moment) => (iterable: Iterable<Slot>): Slot[] => {
-  const times: Slot[] = [];
+/**
+ * Take slots until `pred` is true.
+ *
+ * @param pred A predicate that returns true whether the search has to continue or not, according to given date.
+ * @param generator A generator for slots.
+ * @param acc A result accumulator for recursive calls.
+ * @returns Slots taken from generator in reverse order.
+ */
+const takeUntilAcc = (pred: (m: Moment) => boolean) => (
+  generator: Generator<Slot, Slot, Slot>,
+) => (acc: Slot[]): Slot[] => {
+  const hasToContinueSearch = O.fold(
+    // We ignore next lint from code coverage because it will never be reached:
+    // the case of not having a value is covered in `if (hasValue ...)`.
+    /* istanbul ignore next */
+    () => false,
+    (ts: Moment) => pred(ts),
+  );
+  const hasValue = O.isSome;
 
-  for (const tss of iterable) {
-    if (tss.length > 0) {
-      const [ts] = tss;
-      if (ts.isSameOrAfter(m)) return times;
-      times.push([ts]);
-    }
+  const next = generator.next();
+  const isIteratorAtTheEnd = next.done;
+  const optionalSlot = next.value;
+
+  if (isIteratorAtTheEnd) {
+    // We have finished the sequence
+    return acc;
   }
 
-  return times;
+  if (!hasValue(optionalSlot)) {
+    // We continue searching
+    return takeUntilAcc(pred)(generator)(acc);
+  }
+
+  if (!hasToContinueSearch(optionalSlot)) {
+    // We return values calculated until now
+    return acc;
+  }
+
+  // We add this slot and continue searching
+  return takeUntilAcc(pred)(generator)([optionalSlot, ...acc]);
 };
+
+/** Take slots until `pred` is true. */
+export const takeUntilPred = (pred: (m: Moment) => boolean) => (
+  generator: Generator<Slot, Slot, Slot>,
+): Slot[] => takeUntilAcc(pred)(generator)([]);
+
+/** Take slots until reached `stop` date. */
+export const takeUntil = (stop: Moment) => (
+  generator: Generator<Slot, Slot, Slot>,
+): Slot[] => takeUntilPred((m: Moment) => m.isBefore(stop))(generator);
 
 type Format = { date: string; datetime: string };
 
@@ -49,3 +100,10 @@ export const changeTime = changeTimeWithFormat({
   date: "YYYY-MM-DD",
   datetime: "YYYY-MM-DD HH:mm:ss",
 });
+
+/* istanbul ignore next */
+export const ordMoment: Ord<Moment> = {
+  equals: (x: Moment, y: Moment) => x.isSame(y),
+  compare: (x: Moment, y: Moment) =>
+    x.isBefore(y) ? -1 : x.isAfter(y) ? 1 : 0,
+};

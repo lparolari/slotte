@@ -64,6 +64,7 @@
   ],
   "dependencies": {
     "@types/ramda": "^0.27.25",
+    "fp-ts": "^2.8.4",
     "moment": "^2.29.1",
     "ramda": "^0.27.1"
   }

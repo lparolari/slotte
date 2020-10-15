@@ -1,10 +1,12 @@
+import { sort } from "fp-ts/lib/Array";
+import * as O from "fp-ts/lib/Option";
 import moment, { Moment } from "moment";
 import { forEach, KeyValuePair, map, zip } from "ramda";
 
 import { ge, lt } from "../constraint";
 import { generator } from "../generator";
 import { addInterval, Interval } from "../interval";
-import { flatten, takeUntil, changeTime } from "../util";
+import { changeTime, flatten, ordMoment, takeUntil } from "../util";
 import { mock, revive } from "./mock";
 
 const interval: Interval = { amount: 30, unit: "minutes" };
@@ -20,34 +22,34 @@ describe("generator", () => {
   const startFromD3Gen = () => generator(interval)([ge(d2), ge(d3)])(start);
 
   it("generate a time slot", () => {
-    expect(alwaysGen().next().value).not.toBe([]);
+    expect(alwaysGen().next().value).not.toBe(O.none);
   });
 
   it("generate subsequent time slots", () => {
     const gen = alwaysGen();
-    expect(gen.next().value).toEqual([start]);
-    expect(gen.next().value).toEqual([addInterval(interval)(start)]);
+    expect(gen.next().value).toEqual(O.some(start));
+    expect(gen.next().value).toEqual(O.some(addInterval(interval)(start)));
   });
 
   it("generate time slots wrt constraints (never)", () => {
     const gen = neverGen();
-    expect(gen.next().value).toEqual([]);
-    expect(gen.next().value).toEqual([]);
+    expect(gen.next().value).toEqual(O.none);
+    expect(gen.next().value).toEqual(O.none);
   });
 
   it("generate time slots wrt constraints (>= d2)", () => {
     const gen = startFromD2Gen();
-    expect(gen.next().value).toEqual([]);
-    expect(gen.next().value).toEqual([d2]);
-    expect(gen.next().value).not.toEqual([]);
+    expect(gen.next().value).toEqual(O.none);
+    expect(gen.next().value).toEqual(O.some(d2));
+    expect(gen.next().value).not.toEqual(O.none);
   });
 
   it("generate time slots wrt constraints (>= d2 && => d3)", () => {
     const gen = startFromD3Gen();
-    expect(gen.next().value).toEqual([]);
-    expect(gen.next().value).toEqual([]);
-    expect(gen.next().value).toEqual([d3]);
-    expect(gen.next().value).not.toEqual([]);
+    expect(gen.next().value).toEqual(O.none);
+    expect(gen.next().value).toEqual(O.none);
+    expect(gen.next().value).toEqual(O.some(d3));
+    expect(gen.next().value).not.toEqual(O.none);
   });
 });
 
@@ -62,9 +64,9 @@ describe("generator with constraints", () => {
     const start = moment("2020-10-17 07:00");
     const gen = generator(interval)([notBefore8am])(start);
 
-    expect(gen.next().value).toEqual([]); // 7:00 am
-    expect(gen.next().value).toEqual([]); // 7:30 am
-    expect(gen.next().value).not.toEqual([]); // 8:00 am, now we can generate
+    expect(gen.next().value).toEqual(O.none); // 7:00 am
+    expect(gen.next().value).toEqual(O.none); // 7:30 am
+    expect(gen.next().value).not.toEqual(O.none); // 8:00 am, now we can generate
   });
 
   it("generate time slots wrt daily constraints", () => {
@@ -73,9 +75,9 @@ describe("generator with constraints", () => {
 
     const gen = generator(interval)([notSathurday])(start);
 
-    expect(gen.next().value).toEqual([]); // 23:00 sathurday
-    expect(gen.next().value).toEqual([]); // 23:30 sathurday
-    expect(gen.next().value).not.toEqual([]); // 00:00 sunday, now we can generate
+    expect(gen.next().value).toEqual(O.none); // 23:00 sathurday
+    expect(gen.next().value).toEqual(O.none); // 23:30 sathurday
+    expect(gen.next().value).not.toEqual(O.none); // 00:00 sunday, now we can generate
   });
 });
 
@@ -105,7 +107,7 @@ describe("generator with complex constraints", () => {
       notAtLaunch,
     ])(start);
 
-    const actualWeek = flatten(takeUntil(stop)(gen));
+    const actualWeek = sort(ordMoment)(flatten(takeUntil(stop)(gen)));
     const expectedWeek = map(revive, mock.workingWeek);
 
     forEach((x: KeyValuePair<Moment, Moment>) => {
