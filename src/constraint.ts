@@ -24,3 +24,11 @@ export const le = (threshold: Moment) => (current: Moment): boolean =>
 
 export const lt = (threshold: Moment) => (current: Moment): boolean =>
   current.isBefore(threshold); // c < t
+
+export const onMonday = (m: Moment) => m.isoWeekday() === 1;
+export const onTuesday = (m: Moment) => m.isoWeekday() === 2;
+export const onWednesday = (m: Moment) => m.isoWeekday() === 3;
+export const onThursday = (m: Moment) => m.isoWeekday() === 4;
+export const onFriday = (m: Moment) => m.isoWeekday() === 5;
+export const onSathurday = (m: Moment) => m.isoWeekday() === 6;
+export const onSunday = (m: Moment) => m.isoWeekday() === 7;
